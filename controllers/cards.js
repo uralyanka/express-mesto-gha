@@ -14,7 +14,7 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_CAST).send('400 - Переданы некорректные данные при создании карточки');
+        res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при создании карточки' });
         return;
       }
       res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
@@ -28,10 +28,14 @@ module.exports.deleteCardById = (req, res) => {
       CardNotFound.name = 'CardNotFound';
       return CardNotFound;
     })
-    .then(() => res.send('Карточка успешно удалена'))
+    .then(() => res.send({ message: 'Карточка успешно удалена' }))
     .catch((err) => {
       if (err.name === 'CardNotFound') {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_CAST).send({ message: 'Некорректный _id карточки' });
         return;
       }
       res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);

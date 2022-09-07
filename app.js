@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { ERROR_CODE_NOT_FOUND } = require('./errors/errors');
 
 const { PORT = 3000 } = process.env;
 
@@ -21,6 +22,10 @@ app.use((req, res, next) => {
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.use('/', (req, res) => {
+  res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Неправильный путь' });
+});
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

@@ -20,6 +20,10 @@ module.exports.getUserById = (req, res) => {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
         return;
       }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_CAST).send({ message: '400 - Некорректный _id пользователя' });
+        return;
+      }
       res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
     });
 };
