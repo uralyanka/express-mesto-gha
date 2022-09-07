@@ -1,10 +1,16 @@
 const User = require('../models/user');
-const { ERROR_CODE_CAST, ERROR_CODE_NOT_FOUND, ERROR_CODE_DEFAULT } = require('../errors/errors');
+// изменено сообщение о дефолтной ошибке
+const {
+  ERROR_CODE_CAST,
+  ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_DEFAULT,
+  textErrorDefault,
+} = require('../errors/errors');
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`));
+    .catch(() => res.status(ERROR_CODE_DEFAULT).send(textErrorDefault));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -24,7 +30,7 @@ module.exports.getUserById = (req, res) => {
         res.status(ERROR_CODE_CAST).send({ message: '400 - Некорректный _id пользователя' });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
 
@@ -38,7 +44,7 @@ module.exports.createUser = (req, res) => {
         res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при создании пользователя' });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
 
@@ -61,7 +67,7 @@ module.exports.updateUserProfile = (req, res) => {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
 
@@ -84,6 +90,6 @@ module.exports.updateUserAvatar = (req, res) => {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };

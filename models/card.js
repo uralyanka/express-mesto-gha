@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+// добавлен ref + удален required из likes
 
 const cardSchema = new mongoose.Schema(
   {
@@ -14,11 +15,11 @@ const cardSchema = new mongoose.Schema(
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: 'owner',
       required: true,
     },
     likes: {
       type: [mongoose.Schema.Types.ObjectId],
-      required: true,
       default: [],
     },
     createdAt: {

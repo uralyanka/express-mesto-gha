@@ -1,10 +1,16 @@
 const Card = require('../models/card');
-const { ERROR_CODE_CAST, ERROR_CODE_NOT_FOUND, ERROR_CODE_DEFAULT } = require('../errors/errors');
+// изменено сообщение о дефолтной ошибке
+const {
+  ERROR_CODE_CAST,
+  ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_DEFAULT,
+  textErrorDefault,
+} = require('../errors/errors');
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`));
+    .catch(() => res.status(ERROR_CODE_DEFAULT).send(textErrorDefault));
 };
 
 module.exports.createCard = (req, res) => {
@@ -17,7 +23,7 @@ module.exports.createCard = (req, res) => {
         res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при создании карточки' });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
 
@@ -38,7 +44,7 @@ module.exports.deleteCardById = (req, res) => {
         res.status(ERROR_CODE_CAST).send({ message: 'Некорректный _id карточки' });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
 
@@ -63,7 +69,7 @@ module.exports.likeCard = (req, res) => {
         res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные для постановки лайка' });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
 
@@ -88,6 +94,6 @@ module.exports.dislikeCard = (req, res) => {
         res.status(ERROR_CODE_CAST).send({ message: '404 - Переданы некорректные данные для снятия лайка' });
         return;
       }
-      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+      res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
     });
 };
