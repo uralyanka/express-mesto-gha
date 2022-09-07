@@ -1,15 +1,27 @@
 const User = require('../models/user');
+const { ERROR_CODE_CAST, ERROR_CODE_NOT_FOUND, ERROR_CODE_DEFAULT } = require('../errors/errors');
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((users) => res.send(users))
+    .catch((err) => res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`));
 };
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
+    .orFail(() => {
+      const UserNotFound = new Error(`404 - Пользователь по указанному _id: ${req.params.userId} не найден`);
+      UserNotFound.name = 'UserNotFound';
+      return UserNotFound;
+    })
     .then((user) => res.send(user))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'UserNotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+    });
 };
 
 module.exports.createUser = (req, res) => {
@@ -17,21 +29,57 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send(user))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при создании пользователя' });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+    });
 };
 
 module.exports.updateUserProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, about })
-    .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .orFail(() => {
+      const UserNotFound = new Error(`404 - Пользователь с указанным _id: ${req.user._id} не найден`);
+      UserNotFound.name = 'UserNotFound';
+      return UserNotFound;
+    })
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при обновлении профиля' });
+        return;
+      }
+      if (err.name === 'UserNotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+    });
 };
 
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar })
-    .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .orFail(() => {
+      const UserNotFound = new Error(`404 - Пользователь по указанному _id: ${req.user._id} не найден`);
+      UserNotFound.name = 'UserNotFound';
+      return UserNotFound;
+    })
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при обновлении аватара' });
+        return;
+      }
+      if (err.name === 'UserNotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send(`На сервере произошла ошибка: ${{ message: err.message }}`);
+    });
 };
