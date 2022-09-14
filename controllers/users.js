@@ -1,5 +1,7 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-// изменено сообщение о дефолтной ошибке
+
 const {
   ERROR_CODE_CAST,
   ERROR_CODE_NOT_FOUND,
@@ -34,17 +36,55 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      const UserNotFound = new Error(`404 - Пользователь по указанному _id: ${req.user._id} не найден`);
+      UserNotFound.name = 'UserNotFound';
+      return UserNotFound;
+    })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при создании пользователя' });
+      if (err.name === 'UserNotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: err.message });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_CAST).send({ message: '400 - Некорректный _id пользователя' });
         return;
       }
       res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
+    });
+};
+
+module.exports.createUser = (req, res) => {
+  const {
+    name, about, avatar, email,
+  } = req.body;
+
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+        .then((user) => {
+          res.send(
+            {
+              _id: user._id,
+              name: user.name,
+              about: user.about,
+              avatar: user.avatar,
+              email: user.email,
+            },
+          );
+        })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            res.status(ERROR_CODE_CAST).send({ message: '400 - Переданы некорректные данные при создании пользователя' });
+            return;
+          }
+          res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
+        });
     });
 };
 
@@ -91,5 +131,29 @@ module.exports.updateUserAvatar = (req, res) => {
         return;
       }
       res.status(ERROR_CODE_DEFAULT).send(textErrorDefault);
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };
