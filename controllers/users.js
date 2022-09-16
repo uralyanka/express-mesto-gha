@@ -56,6 +56,7 @@ module.exports.createUser = (req, res, next) => {
         .then((user) => {
           res.send(
             {
+              message: '200 - Пользователь успешно зарегистрирован',
               _id: user._id,
               name: user.name,
               about: user.about,
@@ -68,7 +69,7 @@ module.exports.createUser = (req, res, next) => {
           if (err.code === 11000) {
             return next(new ConflictError('409 - Пользователь c таким email уже существует'));
           }
-          if (err.name === 'ValidationError') {
+          if (err.code === 'ValidationError') {
             return next(new ValidationError('400 - Переданы некорректные данные при создании пользователя'));
           }
           return next(err);
