@@ -40,11 +40,11 @@ app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use(errors());
-
-app.use('/*', (req, res, next) => {
+app.all('/*', (req, res, next) => {
   next(new NotFoundError('Неправильный путь'));
 });
+
+app.use(errors());
 
 app.use((error, req, res, next) => {
   const { statusCode = 500, message } = error;
