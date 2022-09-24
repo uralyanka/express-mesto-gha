@@ -31,12 +31,13 @@ module.exports.deleteCardById = (req, res, next) => {
       }
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('403 - Вы не можете удалить чужую карточку');
-      } else {
-        Card.findByIdAndRemove(req.params.cardId.toString())
-          .then(() => res.send({ message: '200 - Карточка успешно удалена' }))
-          .catch(next);
       }
-    });
+      return card.remove();
+    })
+    .then(() => {
+      res.send({ message: '200 - Карточка успешно удалена' });
+    })
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {
