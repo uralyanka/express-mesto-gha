@@ -42,7 +42,7 @@ app.use('/cards', require('./routes/cards'));
 
 app.use(errors());
 
-app.use('/', (req, res, next) => {
+app.use('/*', (req, res, next) => {
   next(new NotFoundError('Неправильный путь'));
 });
 

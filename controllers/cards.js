@@ -5,7 +5,7 @@ const ForbiddenError = require('../errors/forbiddenError');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send(cards))
+    .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
 
@@ -17,9 +17,9 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('400 - Переданы некорректные данные при создании карточки'));
-      } else {
-        next(err);
+        return;
       }
+      next(err);
     });
 };
 

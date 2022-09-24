@@ -8,25 +8,25 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      default: 'Жак-Ив Кусто',
       minlength: [2, 'Имя должно быть длиннее 2х символов, сейчас его длина {VALUE} символ(ов)'],
       maxlength: [30, 'Имя должно быть короче 30ти символов, сейчас его длина {VALUE} символ(ов)'],
+      default: 'Жак-Ив Кусто',
     },
     about: {
       type: String,
-      default: 'Исследователь',
       minlength: [2, 'Описание должно быть длиннее 2х символов, сейчас его длина {VALUE} символ(ов)'],
       maxlength: [30, 'Описание должно быть короче 30ти символов, сейчас его длина {VALUE} символ(ов)'],
+      default: 'Исследователь',
     },
     avatar: {
       type: String,
-      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
       validate: {
         validator(url) {
           return patternUrl.test(url);
         },
         message: 'Некорректный url',
       },
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     },
     email: {
       type: String,
