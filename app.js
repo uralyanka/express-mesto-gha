@@ -2,11 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { errors, celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const NotFoundError = require('./errors/notFoundError');
-const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const { patternUrl } = require('./constants/constants');
+const errorsHandler = require('./middlewares/errorsHandler');
+// Удалено минимальное значение для валидации пароля
+// Вынесена функция обработки ошибок в отдельный файл errorsHandler
 
 const { PORT = 3000 } = process.env;
 
@@ -18,22 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(patternUrl),
-  }),
-}), createUser);
-
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
+app.use('/', require('./routes'));
 
 app.use(auth);
 
@@ -45,18 +31,7 @@ app.all('/*', (req, res, next) => {
 });
 
 app.use(errors());
-
-app.use((error, req, res, next) => {
-  const { statusCode = 500, message } = error;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(errorsHandler);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

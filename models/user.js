@@ -3,6 +3,7 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const UnauthorizedError = require('../errors/unauthorizedError');
 const { patternUrl } = require('../constants/constants');
+// Удалено минимальное значение для валидации пароля
 
 const userSchema = new mongoose.Schema(
   {
@@ -43,7 +44,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       select: false,
-      minlength: 8,
     },
   },
   {

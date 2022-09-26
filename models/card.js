@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+// добавлена валидация url в модели карточек
+const validator = require('validator');
+
 const cardSchema = new mongoose.Schema(
   {
     name: {
@@ -11,6 +14,12 @@ const cardSchema = new mongoose.Schema(
     link: {
       type: String,
       required: true,
+      validate: {
+        validator(url) {
+          return validator.isUrl(url);
+        },
+        message: 'Некорректная ссылка',
+      },
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
