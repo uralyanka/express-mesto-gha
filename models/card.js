@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 // добавлена валидация url в модели карточек
-const validator = require('validator');
+
+const { patternUrl } = require('../constants/constants');
 
 const cardSchema = new mongoose.Schema(
   {
@@ -16,9 +17,9 @@ const cardSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator(url) {
-          return validator.isUrl(url);
+          return patternUrl.test(url);
         },
-        message: 'Некорректная ссылка',
+        message: 'Некорректный url',
       },
     },
     owner: {
