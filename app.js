@@ -3,11 +3,20 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const cors = require('cors');
 const NotFoundError = require('./errors/notFoundError');
 const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/errorsHandler');
-// Удалено минимальное значение для валидации пароля
-// Вынесена функция обработки ошибок в отдельный файл errorsHandler
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+
+const corsOptions = {
+  origin: [
+    'http://uralyanka.mesto.nomoredomains.icu',
+    'https://uralyanka.mesto.nomoredomains.icu',
+    'http://localhost:3000',
+  ],
+  credentials: true,
+};
 
 const { PORT = 3000 } = process.env;
 
@@ -18,6 +27,16 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+app.use(requestLogger);
+
+app.use(cors(corsOptions));
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.use('/', require('./routes'));
 
@@ -30,6 +49,7 @@ app.all('/*', (req, res, next) => {
   next(new NotFoundError('Неправильный путь'));
 });
 
+app.use(errorLogger);
 app.use(errors());
 app.use(errorsHandler);
 
