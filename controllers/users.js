@@ -5,7 +5,8 @@ const NotFoundError = require('../errors/notFoundError');
 const ValidationError = require('../errors/validationError');
 const ConflictError = require('../errors/conflictError');
 const UnauthorizedError = require('../errors/unauthorizedError');
-// Удалена проверка на ошибку CastError в методе обновления текущего пользователя
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
@@ -120,19 +121,21 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'some-secret-key',
+        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
         { expiresIn: '7d' },
       );
       if (!token) {
         next(new UnauthorizedError('401 - Ошибка при создании токена'));
       }
-      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true });
+      res.send({
         _id: user._id,
         name: user.name,
         about: user.about,
         avatar: user.avatar,
         email: user.email,
       });
+      res.send({ token });
     })
     .catch(next);
 };
