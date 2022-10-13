@@ -126,19 +126,13 @@ module.exports.login = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
         { expiresIn: '7d' },
       );
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-        })
-        .send({
-          _id: user._id,
-          email: user.email,
-          avatar: user.avatar,
-          name: user.name,
-          about: user.about,
-        })
-        .end();
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch(next);
 };
