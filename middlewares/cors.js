@@ -1,7 +1,11 @@
 const allowedCors = [
   'http://localhost:3001',
-  'https://uralyanka.mesto.nomoredomains.icu',
   'http://uralyanka.mesto.nomoredomains.icu',
+  'https://uralyanka.mesto.nomoredomains.icu',
+  'http://www.uralyanka.mesto.nomoredomains.icu',
+  'https://www.uralyanka.mesto.nomoredomains.icu',
+  'http://api.uralyanka.mesto.nomoredomains.icu',
+  'https://api.uralyanka.mesto.nomoredomains.icu',
   'http://localhost:3000',
 ];
 

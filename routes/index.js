@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 const router = require('express').Router();
-const { login, createUser } = require('../controllers/users');
+const { login, createUser, signout } = require('../controllers/users');
 const { patternUrl } = require('../constants/constants');
 
 router.post('/signup', celebrate({
@@ -20,8 +20,6 @@ router.post('/signin', celebrate({
   }),
 }), login);
 
-router.get('/signout', (req, res) => {
-  res.clearCookie('jwt').send({ message: 'Выход' });
-});
+router.get('/signout', signout);
 
 module.exports = router;

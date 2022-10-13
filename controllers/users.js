@@ -130,8 +130,6 @@ module.exports.login = (req, res, next) => {
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
-          sameSite: 'none',
-          secure: true,
         })
         .send({
           _id: user._id,
@@ -143,4 +141,13 @@ module.exports.login = (req, res, next) => {
         .end();
     })
     .catch(next);
+};
+
+module.exports.signout = (req, res) => {
+  res.cookie('jwt', 'token', {
+    maxAge: -1,
+    httpOnly: true,
+  });
+  res.status(200)
+    .send({ message: 'Вы вышли из аккаунта' });
 };
