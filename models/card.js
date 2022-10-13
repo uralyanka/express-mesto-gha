@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-// добавлена валидация url в модели карточек
-
 const { patternUrl } = require('../constants/constants');
 
 const cardSchema = new mongoose.Schema(
