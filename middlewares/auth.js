@@ -7,7 +7,7 @@ const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'secret-key';
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
   // eslint-disable-next-line no-console
-  console.log('qweqwe = ', secretKey);
+  console.log('qweqwe = ', secretKey, token);
   if (!token) {
     throw new UnauthorizedError('401 - Необходима авторизация');
   }
