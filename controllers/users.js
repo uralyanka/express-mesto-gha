@@ -8,9 +8,6 @@ const ConflictError = require('../errors/conflictError');
 
 require('dotenv').config();
 
-const { NODE_ENV, JWT_SECRET } = process.env;
-const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'secret-key';
-
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -118,6 +115,9 @@ module.exports.updateUserAvatar = (req, res, next) => {
     });
 };
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'secret-key';
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
@@ -127,7 +127,7 @@ module.exports.login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         secure: true,
-        sameSite: false,
+        same: 'none',
       });
       res.send({ token });
     })
