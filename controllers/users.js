@@ -124,9 +124,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: '7d' });
       // eslint-disable-next-line no-console
-      console.log('qweqwe = ', secretKey);
-      // eslint-disable-next-line no-console
-      console.log(token);
+      console.log('qweqwe = ', secretKey, token);
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
